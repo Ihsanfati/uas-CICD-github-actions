@@ -1,4 +1,4 @@
-import unittest
+import unittest, sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
@@ -6,11 +6,21 @@ import time
 class WebsiteTest(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls):
-        cls.browser = webdriver.Chrome()
-        cls.browser.get("http://localhost/ihsanfati-uas-ppl-BadCRUD/login.php")
+    def setUpClass(self):
+        options = webdriver.FireforxOptions()
+        options.add_argument('--ignore-ssl-errors=yes')
+        options.add_argument('--ignore-certificate-errors')
+        server = 'http://localhost:4444'
+        self.browser = webdriver.Remote(command_executor=server, options=options)
+        self.addCleanup(self.browser.quit)
 
     def test_1_login(self):
+        if len(sys.argv) > 1:
+            url = sys.argv[1]
+        else:
+            url = "http://localhost"
+        self.browser.get(url)
+
         username_input = self.browser.find_element(By.ID, "inputUsername")
         password_input = self.browser.find_element(By.ID, "inputPassword")
         login_button = self.browser.find_element(By.CSS_SELECTOR, "[type='submit']")
@@ -25,10 +35,22 @@ class WebsiteTest(unittest.TestCase):
         self.assertTrue(dashboard_heading.is_displayed())
 
     def test_2_verify_signout_button(self):
+        if len(sys.argv) > 1:
+            url = sys.argv[1]
+        else:
+            url = "http://localhost"
+        self.browser.get(url)
+
         signout_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Sign out')]")
         self.assertTrue(signout_button.is_displayed())
 
     def test_3_signout(self):
+        if len(sys.argv) > 1:
+            url = sys.argv[1]
+        else:
+            url = "http://localhost"
+        self.browser.get(url)
+    
         signout_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Sign out')]")
         signout_button.click()
 
@@ -38,8 +60,9 @@ class WebsiteTest(unittest.TestCase):
         self.assertTrue(login_heading.is_displayed())
 
     @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
+    def tearDownClass(self):
+        self.browser.quit()
+        #cls.browser.quit()
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2, warnings='ignore')
+    unittest.main(argv=['first-arg-is-ignored'], verbosity=2, warnings='ignore')
