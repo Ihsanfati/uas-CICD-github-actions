@@ -7,7 +7,7 @@ class WebsiteTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        options = webdriver.FireforxOptions()
+        options = webdriver.FirefoxOptions()
         options.add_argument('--ignore-ssl-errors=yes')
         options.add_argument('--ignore-certificate-errors')
         server = 'http://localhost:4444'
