@@ -34,7 +34,7 @@ class ProfilePictureUploadTestCase(unittest.TestCase):
     def upload_profile_picture(self):
         file_input = self.browser.find_element(By.ID, 'formFile')
         
-        image_path = os.path.join(os.getcwd(), 'tom.jpg')
+        image_path = os.path.join(os.getcwd(), 'tom.jpeg')
         file_input.send_keys(image_path)
 
         submit_button = self.browser.find_element(By.CSS_SELECTOR, 'button.btn-secondary')
