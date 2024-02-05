@@ -12,7 +12,6 @@ class WebsiteTest(unittest.TestCase):
         options.add_argument('--ignore-certificate-errors')
         server = 'http://localhost:4444'
         self.browser = webdriver.Remote(command_executor=server, options=options)
-        self.addCleanup(self.browser.quit)
 
     def test_1_login(self):
         if len(sys.argv) > 1:
