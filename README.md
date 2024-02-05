@@ -1,1 +1,4 @@
-# uas-CICD-github-actions
+# Just Bad CRUD App
+
+user : admin\
+pass : nimda666!
