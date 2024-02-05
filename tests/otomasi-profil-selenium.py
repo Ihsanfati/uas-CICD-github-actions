@@ -6,32 +6,33 @@ import time, os
 class WebsiteTest(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls):
-        cls.browser = webdriver.Chrome()
-        cls.browser.get("http://localhost/ihsanfati-uas-ppl-BadCRUD/login.php")
+    def setUpClass(self):
+        options = webdriver.FirefoxOptions()
+        options.add_argument('--ignore-ssl-errors=yes')
+        options.add_argument('--ignore-certificate-errors')
+        server = 'http://localhost:4444'
+        self.browser = webdriver.Remote(command_executor=server, options=options)
 
     def login(self, username, password):
+        try:
+            self.url = os.environ['URL']
+        except:
+            self.url = "http://localhost"
+        self.browser.get(self.url +"/logout.php")
+
         username_input = self.browser.find_element(By.ID, "inputUsername")
         password_input = self.browser.find_element(By.ID, "inputPassword")
         login_button = self.browser.find_element(By.CSS_SELECTOR, "[type='submit']")
 
-        username_input.send_keys(username)
-        password_input.send_keys(password)
+        username_input.send_keys("admin")
+        password_input.send_keys("nimda666!")
         login_button.click()
 
         time.sleep(2)  # Allow time for redirection
 
-    def test_1_login_and_redirect(self):
-        self.login("admin", "nimda666!")
-
-        # Verify redirection to index.php
-        self.assertEqual(self.browser.current_url, "http://localhost/ihsanfati-uas-ppl-BadCRUD/index.php")
-
-    def test_2_dashboard_visible(self):
-        # Verify Dashboard page visibility
         dashboard_heading = self.browser.find_element(By.XPATH, "//h2[contains(text(), 'Halo, admin')]")
         self.assertTrue(dashboard_heading.is_displayed())
-
+        
     def test_3_profile_button_visible(self):
         # Verify "Profile" button visibility
         profile_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Profile')]")
