@@ -1,4 +1,4 @@
-import unittest, sys, os
+import unittest, os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
