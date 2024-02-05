@@ -1,56 +1,104 @@
 import unittest
+import os
+import random
+import string
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
+from selenium.webdriver.common.keys import Keys
 
-class EditButtonTest(unittest.TestCase):
+class UpdateContactTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.browser = webdriver.Chrome()
-        cls.browser.get("http://localhost/ihsanfati-uas-ppl-BadCRUD/login.php")
+        option = webdriver.FirefoxOptions()
+        option.add_argument('--headless')
+        cls.browser = webdriver.Firefox(options=option)
+        try:
+            cls.url = os.environ['URL']
+        except:
+            cls.url = "http://localhost"
+        cls.name_query = ''.join(random.choices(string.ascii_letters, k=10))
 
-    def login(self):
-        time.sleep(5)  # Tunggu lebih lama sebelum mencari elemen
-        username_input = WebDriverWait(self.browser, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "#inputUsername"))
-        )
-        password_input = self.browser.find_element(By.ID, "inputPassword")
-        login_button = self.browser.find_element(By.CSS_SELECTOR, "[type='submit']")
+    def test(self):
+        self.login_correct_credentials()
+        self.create_contact()
+        self.update_contact() 
+        self.delete_contact()       
 
-        username_input.send_keys("admin")
-        password_input.send_keys("nimda666!")
-        login_button.click()
+    def login_correct_credentials(self):
+        login_url = self.url + '/login.php'
+        self.browser.get(login_url)
 
-        time.sleep(2)  # Allow time for redirection
+        self.browser.find_element(By.ID, 'inputUsername').send_keys('admin')
+        self.browser.find_element(By.ID, 'inputPassword').send_keys('nimda666!')
+        self.browser.find_element(By.TAG_NAME, 'button').click()
 
-        # Check if redirected to the dashboard
-        dashboard_heading = self.browser.find_element(By.XPATH, "//h2[contains(text(), 'Halo, admin')]")
-        self.assertTrue(dashboard_heading.is_displayed(), "Failed to log in. Dashboard heading not found.")
+    def create_contact(self):
+        create_url = self.url + '/create.php'
+        self.browser.get(create_url)
 
-    def test_edit_button_visibility(self):
-        self.login()
+        self.browser.find_element(By.ID, 'name').send_keys(self.name_query)
+        self.browser.find_element(By.ID, 'email').send_keys('test@example.com')
+        self.browser.find_element(By.ID, 'phone').send_keys('1234567890')
+        self.browser.find_element(By.ID, 'title').send_keys('Developer')
 
-        # Continue with your test logic for edit button visibility
+        self.browser.find_element(By.CSS_SELECTOR, 'input[type="submit"]').click()
 
-    def test_edit_button_clickable(self):
-        self.login()
+        index_page_title = "Dashboard"
+        actual_title = self.browser.title
+        self.assertEqual(index_page_title, actual_title)
 
-        # Tunggu hingga halaman index.php selesai dimuat
-        WebDriverWait(self.browser, 10).until(EC.title_contains("Dashboard"))
+    def update_contact(self):
+        search_query = self.name_query
+        self.browser.find_element(By.ID, 'employee_filter').find_element(By.TAG_NAME, 'input').send_keys(search_query)
+        self.browser.find_element(By.ID, 'employee_filter').find_element(By.TAG_NAME, 'input').send_keys(Keys.ENTER)
 
-        # Ambil semua tombol "Edit"
-        edit_buttons = self.browser.find_elements(By.CSS_SELECTOR, ".btn-outline-success")
+        searched_contact_name = self.name_query
+        searched_contact_exists = self.browser.find_elements(By.XPATH, f"//td[contains(text(), '{searched_contact_name}')]")
+        self.assertTrue(searched_contact_exists)
+        
+        actions_section = self.browser.find_element(By.XPATH, "//tr[@role='row'][1]//td[contains(@class, 'actions')]")
+        update_button = actions_section.find_element(By.XPATH, ".//a[contains(@class, 'btn-success')]")
 
-        # Uji setiap tombol "Edit"
-        for edit_button in edit_buttons:
-            self.assertTrue(edit_button.is_displayed(), "Edit button is not visible")
-            edit_button.click()
+        update_button.click()
 
-            # Tunggu hingga halaman update.php selesai dimuat
-            WebDriverWait(self.browser, 10).until(EC.title_contains("Update"))
+        new_title = "Updated Title"
+        self.browser.find_element(By.ID, 'title').clear()
+        self.browser.find_element(By.ID, 'title').send_keys(new_title)
+
+        self.browser.find_element(By.CSS_SELECTOR, 'input[type="submit"]').click()
+
+        index_page_title = "Dashboard"
+        actual_title = self.browser.title
+        self.assertEqual(index_page_title, actual_title)
+
+        search_query = self.name_query
+        self.browser.find_element(By.ID, 'employee_filter').find_element(By.TAG_NAME, 'input').send_keys(search_query)
+        self.browser.find_element(By.ID, 'employee_filter').find_element(By.TAG_NAME, 'input').send_keys(Keys.ENTER)
+
+        searched_contact_name = self.name_query
+        
+        updated_contact_exists = self.browser.find_elements(By.XPATH, f"//td[contains(text(), '{new_title}')]")
+        self.assertTrue(updated_contact_exists)
+
+    def delete_contact(self):
+        actions_section = self.browser.find_element(By.XPATH, "//tr[@role='row'][1]//td[contains(@class, 'actions')]")
+        delete_button = actions_section.find_element(By.XPATH, ".//a[contains(@class, 'btn-danger')]")
+
+        delete_button.click()
+
+        self.browser.switch_to.alert.accept()
+
+        time.sleep(3)
+
+        search_query = self.name_query
+        self.browser.find_element(By.ID, 'employee_filter').find_element(By.TAG_NAME, 'input').send_keys(search_query)
+        self.browser.find_element(By.ID, 'employee_filter').find_element(By.TAG_NAME, 'input').send_keys(Keys.ENTER)
+
+        searched_contact_name = self.name_query
+        searched_contact_exists = self.browser.find_elements(By.XPATH, f"//td[contains(text(), '{searched_contact_name}')]")
+        self.assertFalse(searched_contact_exists)
 
     @classmethod
     def tearDownClass(cls):
