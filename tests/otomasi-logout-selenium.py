@@ -1,4 +1,4 @@
-import unittest, sys
+import unittest, sys, os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
@@ -14,11 +14,11 @@ class WebsiteTest(unittest.TestCase):
         self.browser = webdriver.Remote(command_executor=server, options=options)
 
     def test_1_login(self):
-        if len(sys.argv) > 1:
-            url = sys.argv[1]
-        else:
-            url = "http://localhost"
-        self.browser.get(url)
+        try:
+            self.url = os.environ['URL']
+        except:
+            self.url = "http://localhost"
+        self.browser.get(self.url +"/logout.php")
 
         username_input = self.browser.find_element(By.ID, "inputUsername")
         password_input = self.browser.find_element(By.ID, "inputPassword")
