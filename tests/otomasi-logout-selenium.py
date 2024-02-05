@@ -34,21 +34,11 @@ class WebsiteTest(unittest.TestCase):
         self.assertTrue(dashboard_heading.is_displayed())
 
     def test_2_verify_signout_button(self):
-        try:
-            self.url = os.environ['URL']
-        except:
-            self.url = "http://localhost"
-        self.browser.get(self.url +"/logout.php")
 
         signout_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Sign out')]")
         self.assertTrue(signout_button.is_displayed())
 
     def test_3_signout(self):
-        try:
-            self.url = os.environ['URL']
-        except:
-            self.url = "http://localhost"
-        self.browser.get(self.url +"/logout.php")
     
         signout_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Sign out')]")
         signout_button.click()
