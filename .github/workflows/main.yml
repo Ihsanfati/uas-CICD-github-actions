@@ -42,7 +42,7 @@ jobs:
         run: pip install -U selenium
       
       - name: Run test
-        run: python tests/otomasi-logout-selenium.py
+        run: python tests/otomasi-profil-selenium.py
 
       - name: stop docker
         run: docker stop docker-apache
