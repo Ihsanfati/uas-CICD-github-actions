@@ -57,7 +57,7 @@ jobs:
         run: python tests/otomasi-xss-selenium.py
       
       - name: Run test 
-        runL python tests/otomasi-create-selenium.py
+        run: python tests/otomasi-create-selenium.py
 
       - name: stop docker
         run: docker stop docker-apache
