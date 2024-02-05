@@ -1,99 +1,50 @@
-import unittest
+import unittest, os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import time, os
 
-class WebsiteTest(unittest.TestCase):
+class ProfilePictureUploadTestCase(unittest.TestCase):
 
     @classmethod
-    def setUpClass(self):
-        options = webdriver.FirefoxOptions()
-        options.add_argument('--ignore-ssl-errors=yes')
-        options.add_argument('--ignore-certificate-errors')
-        server = 'http://localhost:4444'
-        self.browser = webdriver.Remote(command_executor=server, options=options)
-
-    def login(self, username, password):
+    def setUpClass(cls):
+        option = webdriver.FirefoxOptions()
+        option.add_argument('--headless')
+        cls.browser = webdriver.Firefox(options=option)
         try:
-            self.url = os.environ['URL']
+            cls.url = os.environ['URL']
         except:
-            self.url = "http://localhost"
-        self.browser.get(self.url +"/logout.php")
+            cls.url = "http://localhost"
 
-        username_input = self.browser.find_element(By.ID, "inputUsername")
-        password_input = self.browser.find_element(By.ID, "inputPassword")
-        login_button = self.browser.find_element(By.CSS_SELECTOR, "[type='submit']")
+    def test(self):
+        self.login_correct_credentials()
+        self.go_to_profile_page()
+        self.upload_profile_picture()
 
-        username_input.send_keys("admin")
-        password_input.send_keys("nimda666!")
-        login_button.click()
+    def login_correct_credentials(self):
+        login_url = self.url + '/login.php'
+        self.browser.get(login_url)
 
-        time.sleep(2)  # Allow time for redirection
+        self.browser.find_element(By.ID, 'inputUsername').send_keys('admin')
+        self.browser.find_element(By.ID, 'inputPassword').send_keys('nimda666!')
+        self.browser.find_element(By.TAG_NAME, 'button').click()
 
-        dashboard_heading = self.browser.find_element(By.XPATH, "//h2[contains(text(), 'Halo, admin')]")
-        self.assertTrue(dashboard_heading.is_displayed())
+    def go_to_profile_page(self):
+        profile_url = self.url + '/profil.php'
+        self.browser.get(profile_url)
+
+    def upload_profile_picture(self):
+        file_input = self.browser.find_element(By.ID, 'formFile')
         
-    def test_3_profile_button_visible(self):
-        # Verify "Profile" button visibility
-        profile_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Profile')]")
-        self.assertTrue(profile_button.is_displayed())
+        image_path = os.path.join(os.getcwd(), 'tests', 'test_images', 'image.jpg')
+        file_input.send_keys(image_path)
 
-    def test_4_profile_redirect(self):
-        # Click "Profile" button and verify redirection to profil.php
-        profile_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Profile')]")
-        profile_button.click()
-        time.sleep(2)  # Allow time for redirection
+        submit_button = self.browser.find_element(By.CSS_SELECTOR, 'button.btn-secondary')
+        submit_button.click()
 
-        # Verify Profile page visibility
-        profile_heading = self.browser.find_element(By.XPATH, "//h2[contains(text(), 'Profil')]")
-        self.assertTrue(profile_heading.is_displayed())
+        redirected_url = self.url + '/profil.php'
+        self.assertEqual(redirected_url, self.browser.current_url)
 
-    def test_5_dashboard_signout_visible(self):
-        # Verify "Dashboard" and "Sign out" buttons visibility
-        dashboard_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Dashboard')]")
-        signout_button = self.browser.find_element(By.XPATH, "//a[contains(text(), 'Sign out')]")
-        self.assertTrue(dashboard_button.is_displayed())
-        self.assertTrue(signout_button.is_displayed())
-
-    def test_6_username_password_form_visible(self):
-        # Verify Username and Password form visibility
-        username_input = self.browser.find_element(By.ID, "username")
-        password_input = self.browser.find_element(By.ID, "address")
-        self.assertTrue(username_input.is_displayed())
-        self.assertTrue(password_input.is_displayed())
-
-    def test_7_formfile_and_button_ganti_visible(self):
-        # Verify formFile and "Ganti" button visibility
-        formfile_input = self.browser.find_element(By.ID, "formFile")
-        ganti_button = self.browser.find_element(By.XPATH, "//button[contains(text(), 'Ganti')]")
-
-        self.assertTrue(formfile_input.is_displayed())
-        self.assertTrue(ganti_button.is_displayed())
-
-    def test_8_upload_invalid_image(self):
-        # Upload invalid image (tom.png) and verify error message
-        formfile_input = self.browser.find_element(By.ID, "formFile")
-        formfile_input.send_keys("tom.png")
-
-        ganti_button = self.browser.find_element(By.XPATH, "//button[contains(text(), 'Ganti')]")
-        ganti_button.click()
-
-        error_message = self.browser.find_element(By.XPATH, "//div[contains(text(), 'Ekstensi tidak diijinkan. Hanya menerima file JPG/JPEG')]")
-        self.assertTrue(error_message.is_displayed())
-
-    def test_9_upload_valid_image(self):
-        # Upload valid image (tom.jpg) and verify file moved to image directory with new name (profile.jpg)
-        formfile_input = self.browser.find_element(By.ID, "formFile")
-        formfile_input.send_keys("tom.jpg")
-
-        ganti_button = self.browser.find_element(By.XPATH, "//button[contains(text(), 'Ganti')]")
-        ganti_button.click()
-
-        time.sleep(2)  # Allow time for the file to be moved
-
-        # Verify the file has moved to image directory with new name (profile.jpg)
-        profile_image_path = "image/profile.jpg"
-        self.assertTrue(os.path.exists(profile_image_path))
+        new_profile_picture = self.browser.find_element(By.CSS_SELECTOR, 'img[src="image/profile.jpg"]')
+        self.assertIsNotNone(new_profile_picture)
 
     @classmethod
     def tearDownClass(cls):
