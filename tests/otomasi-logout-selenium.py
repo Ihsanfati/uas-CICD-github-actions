@@ -6,13 +6,13 @@ import time
 class WebsiteTest(unittest.TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(self):
         options = webdriver.FirefoxOptions()
         options.add_argument('--ignore-ssl-errors=yes')
         options.add_argument('--ignore-certificate-errors')
         server = 'http://localhost:4444'
-        cls.browser = webdriver.Remote(command_executor=server, options=options)
-        cls.addCleanup(cls.tearDownClass)
+        self.browser = webdriver.Remote(command_executor=server, options=options)
+        self.addCleanup(self.browser.quit)
 
     def test_1_login(self):
         if len(sys.argv) > 1:
@@ -60,8 +60,9 @@ class WebsiteTest(unittest.TestCase):
         self.assertTrue(login_heading.is_displayed())
 
     @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
+    def tearDownClass(self):
+        self.browser.quit()
+        #cls.browser.quit()
 
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], verbosity=2, warnings='ignore')
