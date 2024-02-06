@@ -56,5 +56,11 @@ jobs:
       - name: Run test using pytest
         run: pytest tests/otomasi-create-selenium.py
 
+      - name: ZAP Scan
+        uses: hermanka/action-full-scan@master
+        with:
+          target: ${{ env.URL }}
+          network_name: isolated
+
       - name: stop docker
         run: docker stop docker-apache
