@@ -56,14 +56,24 @@ jobs:
       - name: Run test using pytest
         run: pytest tests/otomasi-create-selenium.py
 
-      - name: ZAP Scan
-        uses: hermanka/action-full-scan@master
-        with:
-          target: ${{ env.URL }}
-          network_name: isolated
-
       - name: stop docker
         run: docker stop docker-apache
+  dast: 
+    name: zap scan
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.6.1
+        with:
+          docker_name: 'owasp/zap2docker-stable'
+          target: ${{ env.URL }}
+          network_name: isolated
+          cmd_options: '-a'
   sast:
     name: Psalm
     permissions: write-all
