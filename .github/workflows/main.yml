@@ -40,6 +40,12 @@ jobs:
 
       - name: Install Selenium client
         run: pip install -U selenium pytest pytest-xdist
+
+      - name: Run test using pytest
+        run: pytest tests/otomasi-login-correct-selenium.py
+      
+      - name: Run test using pytest
+        run: pytest tests/otomasi-login-false-selenium.py
       
       - name: Run test using pytest
         run: pytest tests/otomasi-logout-selenium.py
