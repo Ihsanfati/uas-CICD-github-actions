@@ -39,10 +39,22 @@ jobs:
         run: curl http://localhost:4444/ui
 
       - name: Install Selenium client
-        run: pip install -U selenium
+        run: pip install -U selenium pytest pytest-xdist
       
-      - name: Run test
-        run: python tests/otomasi-create-selenium.py
+      - name: Run test using pytest
+        run: pytest tests/otomasi-logout-selenium.py
+
+      - name: Run test using pytest
+        run: pytest tests/otomasi-profil-selenium.py
+      
+      - name: Run test using pytest
+        run: pytest tests/otomasi-xss-selenium.py
+      
+      - name: Run test using pytest
+        run: pytest tests/otomasi-profil-selenium.py
+      
+      - name: Run test using pytest
+        run: pytest tests/otomasi-create-selenium.py
 
       - name: stop docker
         run: docker stop docker-apache
