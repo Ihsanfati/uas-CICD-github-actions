@@ -72,7 +72,7 @@ jobs:
         with:
           docker_name: 'owasp/zap2docker-stable'
           target: ${{ env.URL }}
-          network_name: isolated
+          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
   sast:
     name: Psalm
