@@ -57,7 +57,7 @@ jobs:
         run: pytest tests/otomasi-create-selenium.py
 
       - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.1.0
+        uses: hermanka/action-full-scan@master
         with:
           target: ${{ env.URL }}
           network_name: isolated
