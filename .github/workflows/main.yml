@@ -51,7 +51,7 @@ jobs:
         run: pytest tests/otomasi-xss-selenium.py
       
       - name: Run test using pytest
-        run: pytest tests/otomasi-profil-selenium.py
+        run: pytest tests/otomasi-update-selenium.py
       
       - name: Run test using pytest
         run: pytest tests/otomasi-create-selenium.py
